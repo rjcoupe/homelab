@@ -31,7 +31,7 @@ main() {
         echo "Temperature is ${TEMP} - allowing dynamic fan control"
         set_dynamic
     else
-        set_manual "0x09"
+        set_manual
     fi
 }
 
