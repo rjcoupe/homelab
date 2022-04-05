@@ -1,0 +1,51 @@
+---
+- name: Check if kubernetes has already been initialised
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubernetes_init_stat
+
+- name: Create directory for kubernetes_config_file
+  file:
+    path: "{{ kubernetes_kubeadm_kubelet_config_file_path | dirname }}"
+    state: directory
+
+- name: Deploy the config file for kubeadm and kubelet
+  template:
+    src: "kubeadm-kubelet-config.j2"
+    dest: "{{ kubernetes_kubeadm_kubelet_config_file_path }}"
+
+- name: Ensure kubelet is enabled and running
+  service:
+    name: kubelet
+    state: restarted
+    enabled: true
+
+- name: Initialise the Kubernetes master with kubeadm init
+  command: >
+    kubeadm init
+    --config {{ kubernetes_kubeadm_kubelet_config_file_path }}
+    {{ kubernetes_kubeadm_init_extra_opts }}
+  register: kubeadm_init
+  when: (not kubernetes_init_stat.stat.exists) and (kubernetes_ignore_preflight_errors is not defined)
+
+- name: Print init output to screen
+  debug:
+    var: kubeadm_init.stdout
+    verbosity: 2
+  when: not kubernetes_init_stat.stat.exists
+
+- name: Ensure .kube dir exists
+  file:
+    path: ~/.kube
+    state: directory
+    mode: 0755
+
+- name: Symlink kubectl admin.conf to ~/.kube/conf
+  file:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    state: link
+    mode: 0644
+
+- name: Install Flannel CNI
+  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml

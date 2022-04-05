@@ -1,0 +1,10 @@
+---
+- hosts: kubernetes-master
+  become: true
+  roles:
+    - kubernetes_master
+
+- hosts: kubernetes-worker
+  become: true
+  roles:
+    - kubernetes_worker

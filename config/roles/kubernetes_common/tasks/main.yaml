@@ -1,0 +1,112 @@
+---
+- name: Disable swap
+  become: true
+  shell: swapoff -a
+
+- name: Disable swap in fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Load br_netfilter
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Set /proc/sys/net/ipv4/ip_forward contents to 1
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Set /proc/sys/net/bridge/bridge-nf-call-iptables contents to 1
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: "1"
+    sysctl_set: true
+    state: present
+
+- name: Set /proc/sys/net/bridge/bridge-nf-call-ip6tables contents to 1
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: "1"
+    sysctl_set: true
+    state: present
+
+- name: Ensure dependencies are installed
+  become: true
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Add Docker apt key
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  become: true
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu impish stable"
+    state: present
+    update_cache: true
+
+- name: Install Docker
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+- name: Write docker daemon json file
+  template:
+    src: docker_daemon.json
+    dest: /etc/docker/daemon.json
+    mode: 0644
+
+- name: Restart docker
+  service:
+    name: docker
+    state: restarted
+
+- name: Add Kubernetes apt key
+  become: true
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes repository
+  become: true
+  apt_repository:
+    repo: "{{ kubernetes_apt_repository }}"
+    state: present
+    update_cache: true
+
+- name: Add Kubernetes apt prefs file to version pin
+  template:
+    src: apt-preferences-kubernetes.j2
+    dest: /etc/apt/preferences.d/kubernetes
+    mode: 0644
+
+- name: Install Kubernetes packages
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+    allow_downgrade: true
+  notify: restart kubelet
+  with_items: "{{ kubernetes_packages }}"
+  
