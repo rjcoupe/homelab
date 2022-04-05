@@ -1,0 +1,22 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+users:
+  - name: user
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    lock-passwd: false
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDCoGoLCJ7tQRi/mxVBE8eiJCklECVQPtGXeITNNo+CrI/6snZ4pn/RYIslLRDgTNW5FT0LCBrBdWdmheZfgPGDEfgUatd3UztU6x0AzE0DnhB9dRh8HF9aczjb8dwSC78mYE4ROqK2zbfMpSG8wrzdn9t/T1jDoL0nEUdEL2s5qupdwg7uZRD9U4trXQH/qSgCWDsMq3ReTJ1MS3z0Ufm8+9GkLEocIQUvQAyv1wF32nMx3Ou6XiNXBmG3XP4bQd3R2nM/RKgil2DZpVZa6JNiWDREAx909HrAqel6+OZPv7O/sZ+grpwPX1hc5Sl2068q0h8NYajVeBswDUAW8XKxhAEcoYC0ZSGfiVjka6JEZ6ZJnB9PL50PnPqfdNASCCCRrHCszLBHfKGJ6/qbwYA7k6lTiqkd+IwWMMgwhtFgK0CDPDDg/3KOHTaAOwhr9UaPFSqtx/zbKmoVKQpAhQOebJXOAs3V+tRYh6i+p+cUYmXpBcsKSUeXzRi9/3wXGVU= richardcoupe@MacBook-Pro.localdomain
+
+
+packages:
+  - qemu-guest-agent
+
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, enable, qemu-guest-agent ]
+  - [ systemctl, start, qemu-guest-agent ]
