@@ -47,5 +47,23 @@
     state: link
     mode: 0644
 
-- name: Install Flannel CNI
+- name: Install Flannel
   command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+
+- name: Install Helm
+  shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+- name: Add Helm Repositories
+  kubernetes.core.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo }}"
+  loop: "{{ preinstall.helm }}"
+
+- name: Install preinstall packages via Helm
+  kubernetes.core.helm:
+    name: "{{ item.name }}"
+    chart_ref: "{{ item.chart_ref }}"
+    release_namespace: kube-system
+  loop: "{{ preinstall.helm }}"
+
+

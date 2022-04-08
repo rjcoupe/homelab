@@ -36,7 +36,7 @@
     sysctl_set: true
     state: present
 
-- name: Ensure dependencies are installed
+- name: Ensure apt dependencies are installed
   become: true
   apt:
     name:
@@ -45,7 +45,14 @@
       - curl
       - gnupg
       - lsb-release
+      - python3-pip
     state: present
+
+- name: Ensure pip dependencies are installed
+  pip:
+    name: "{{ item }}"
+  loop:
+    - openshift
 
 - name: Add Docker apt key
   become: true

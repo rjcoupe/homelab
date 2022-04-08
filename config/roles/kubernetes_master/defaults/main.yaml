@@ -23,3 +23,11 @@ kubernetes_config_cluster_configuration:
 kubernetes_config_kube_proxy_configuration: {}
 
 kubernetes_kubeadm_init_extra_opts: ""
+
+preinstall:
+  helm:
+    - repo: https://metallb.github.io/metallb
+      chart_ref: metallb/metallb
+      name: metallb
+  
+  # - https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml                       # Tekton
