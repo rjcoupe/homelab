@@ -46,9 +46,10 @@
     dest: ~/.kube/config
     state: link
     mode: 0644
-
-- name: Install Flannel
-  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+  
+- name: Install preinstall packages via raw YAML
+  loop: "{{ preinstall.raw }}"
+  command: "kubectl apply -f {{ item }}"
 
 - name: Install Helm
   shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
