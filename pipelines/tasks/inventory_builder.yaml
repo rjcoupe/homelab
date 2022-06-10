@@ -47,4 +47,4 @@ spec:
       script: |
         npm install -g @alexlafroscia/yaml-merge
         statics=$(ls $(workspaces.source.path)/config/inventories.yaml)
-        yaml-merge $(workspaces.inventory.path)/dynamic_inventory.yaml statics[@] > $(workspaces.inventory.path)/inventory.yaml
+        yaml-merge $(workspaces.inventory.path)/dynamic_inventory.yaml $statics > $(workspaces.inventory.path)/inventory.yaml
