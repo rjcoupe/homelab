@@ -4,8 +4,9 @@ metadata:
   name: inventory_builder
 spec:
   workspaces:
+    - name: source
     - name: inventory
-      description: JIT inventory from Proxmox
+      description: Compiled inventory from static data as well as Proxmox
   params:
     - name: proxmox_host_ip
       type: string
@@ -17,6 +18,18 @@ spec:
       type: string
       description: User with which to access the Proxmox API
   steps:
+    - name: fetch_source
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: github.com/rjcoupe/homelab
+      workspaces:
+        - name: output
+          workspace: source
+        - name: ssh-directory
+          secret:
+            secretName: ssh-credentials
     - name: build_inventory
       image: golang:alpine
       env:
@@ -28,4 +41,10 @@ spec:
       script: |
         #!/bin/sh
         go get github.com/rjcoupe/pm_inventory_builder
-        pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/inventory.yaml
+        pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/dynamic_inventory.yaml
+    - name: combine_inventories
+      image: node:alpine
+      script: |
+        npm install -g @alexlafroscia/yaml-merge
+        statics=$(ls $(workspaces.source.path)/config/inventories.yaml)
+        yaml-merge $(workspaces.inventory.path)/dynamic_inventory.yaml statics[@] > $(workspaces.inventory.path)/inventory.yaml
