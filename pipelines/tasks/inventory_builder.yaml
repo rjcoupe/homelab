@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: inventory_builder
+spec:
+  workspaces:
+    - name: inventory
+      description: JIT inventory from Proxmox
+  params:
+    - name: proxmox_host_ip
+      type: string
+      description: Proxmox Host IP
+    - name: proxmox_host_port
+      type: string
+      description: Proxmox Host API Port (usually 8006)
+    - name: proxmox_user
+      type: string
+      description: User with which to access the Proxmox API
+  steps:
+    - name: build_inventory
+      image: golang:alpine
+      env:
+        - name: PROXMOX_API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: apiPassword
+      script: |
+        #!/bin/sh
+        go get github.com/rjcoupe/pm_inventory_builder
+        pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/inventory.yaml

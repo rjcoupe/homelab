@@ -1,0 +1,64 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: homelab
+spec:
+  workspaces:
+    - name: source
+      description: Source cloned from git repo.
+  params:
+    - name: proxmox_host_ip
+      type: string
+      description: Proxmox Host IP
+    - name: proxmox_host_port
+      type: string
+      description: Proxmox Host API Port (usually 8006)
+      default: 8006
+    - name: proxmox_user
+      type: string
+      description: User with which to access the Proxmox API
+  tasks:
+    - name: fetch_source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source
+        - name: ssh-directory
+          secret:
+            secretName: ssh-credentials
+    - name: terraform
+      runAfter: fetch_source
+      taskRef:
+        name: terraform-cli
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: ARGS
+          value:
+            - apply
+            - "-auto-approve"
+    - name: build_inventory
+      runAfter:
+        - terraform
+      taskRef:
+        name: inventory_builder
+      params:
+        - name: proxmox_host_ip
+          value: "$(params.proxmox_host_ip)"
+        - name: proxmox_host_port
+          value: "$(params.proxmox_host_port)"
+        - name: proxmox_user
+          value: "$(params.proxmox_user)"
+    - name: ansible
+      workspaces:
+        - name: source
+          workspace: source
+          readOnly: true
+        - name: inventory
+          workspace: inventory
+          readOnly: true
+      runAfter:
+        - build_inventory
+      
