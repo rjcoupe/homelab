@@ -24,10 +24,14 @@ kubernetes_config_kube_proxy_configuration: {}
 
 kubernetes_kubeadm_init_extra_opts: ""
 
+# The "raw" packages will be installed first and should begin with Flannel (or equivalent)
 preinstall:
   helm:
-    - repo: https://metallb.github.io/metallb
+    - repo: https://metallb.github.io/metallb                                                           # MetalLB
       chart_ref: metallb/metallb
       name: metallb
-  
-  # - https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml                       # Tekton
+  raw:
+    - https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml        # Flannel
+    - https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml                       # Tekton
+    - https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml                       # Tekton Triggers
+    - https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml     # Tekton Dashboard
