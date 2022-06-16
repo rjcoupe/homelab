@@ -41,7 +41,7 @@ spec:
       script: |
         #!/bin/sh
         go get github.com/rjcoupe/pm_inventory_builder
-        pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/dynamic_inventory.yaml
+        $GOPATH/bin/pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/dynamic_inventory.yaml
     - name: combine_inventories
       image: node:alpine
       script: |
