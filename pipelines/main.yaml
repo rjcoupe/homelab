@@ -17,6 +17,12 @@ spec:
     - name: proxmox_user
       type: string
       description: User with which to access the Proxmox API
+    - name: proxmox_api_token_id
+      type: string
+      description: Proxmox API Token ID
+    - name: proxmox_api_token_secret
+      type: string
+      description: Proxmox API Token Secret
   tasks:
     - name: fetch_source
       taskRef:
@@ -44,13 +50,16 @@ spec:
         - terraform
       taskRef:
         name: inventory_builder
+      env:
+        - name: PROXMOX_API_TOKEN_ID
+          value: "$(params.proxmox_api_token_id)"
+        - name: PROXMOX_API_TOKEN_SECRET
+          value: "$(params.proxmox_api_token_secret)"
       params:
         - name: proxmox_host_ip
           value: "$(params.proxmox_host_ip)"
         - name: proxmox_host_port
           value: "$(params.proxmox_host_port)"
-        - name: proxmox_user
-          value: "$(params.proxmox_user)"
     - name: ansible
       workspaces:
         - name: source
