@@ -1,10 +1,10 @@
 ---
-- hosts: kubernetes-master
+- hosts: k3s_master
   become: true
   roles:
-    - kubernetes_master
+    - k3s_master
 
-- hosts: kubernetes-worker
+- hosts: k3s_worker
   become: true
   roles:
-    - kubernetes_worker
+    - k3s_worker
