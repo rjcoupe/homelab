@@ -2,10 +2,10 @@ all:
   hosts:
     pi1:
       ansible_host: 192.168.1.12
-      ansible_user: pi # No, it doesn't have the default password any more
+      ansible_user: ubuntu # No, it doesn't have the default password any more
 
-kubernetes-master:
+k3s_master:
   hosts:
     pi1:
       ansible_host: 192.168.1.12
-      ansible_user: pi # No, it doesn't have the default password any more
+      ansible_user: ubuntu # No, it doesn't have the default password any more
