@@ -1,0 +1,40 @@
+---
+- name: Install K3s on Control Plane
+  shell: curl -sfL https://get.k3s.io | sh -
+
+- name: Ensure .kube dir exists
+  file:
+    path: ~/.kube
+    state: directory
+    mode: 0755
+
+- name: Symlink kubectl admin conf to ~/.kube/conf
+  file:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/config
+    state: link
+    mode: 0644
+
+- name: Wait for kube-apiserver to be ready
+  wait_for:
+    port: 6443
+  
+- name: Install preinstall packages via raw YAML
+  loop: "{{ preinstall.raw }}"
+  command: "kubectl apply -f {{ item }}"
+
+- name: Install Helm
+  shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+- name: Add Helm Repositories
+  kubernetes.core.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo }}"
+  loop: "{{ preinstall.helm }}"
+
+- name: Install preinstall packages via Helm
+  kubernetes.core.helm:
+    name: "{{ item.name }}"
+    chart_ref: "{{ item.chart_ref }}"
+    release_namespace: kube-system
+  loop: "{{ preinstall.helm }}"

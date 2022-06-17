@@ -1,0 +1,10 @@
+# The "raw" packages will be installed first
+preinstall:
+  helm:
+    - repo: https://metallb.github.io/metallb                                                           # MetalLB
+      chart_ref: metallb/metallb
+      name: metallb
+  raw:
+    - https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml                       # Tekton
+    - https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml                       # Tekton Triggers
+    - https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml     # Tekton Dashboard

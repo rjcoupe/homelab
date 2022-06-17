@@ -1,0 +1,5 @@
+- name: Install kernel headers
+  apt:
+    name: linux-modules-extra-raspi
+    state: present
+  notify: reboot
