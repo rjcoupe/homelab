@@ -10,7 +10,8 @@ spec:
       metadata:
         generateName: homelab-run-on-pr-
       spec:
-        pipelineRef: homelab
+        pipelineRef:
+          ref: homelab
         workspaces:
           - name: ssh_credentials
             secret:
