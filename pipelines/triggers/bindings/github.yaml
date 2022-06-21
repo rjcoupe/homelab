@@ -5,8 +5,8 @@ metadata:
   namespace: tekton-pipelines
 spec:
   params:
-  - name: gitbranch
-    value: $(extensions.branch_name) # uses CEL interceptor, see EL
+  - name: gitref
+    value: $(body.ref)
   - name: gitrevision
     value: $(body.after) # uses body from webhook payload
   - name: gitrepositoryname
