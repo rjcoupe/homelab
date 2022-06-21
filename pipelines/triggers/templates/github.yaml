@@ -14,6 +14,7 @@ spec:
           name: homelab
         workspaces:
           - name: source
+            emptyDir: {}
           - name: ssh-directory
             secret:
               secretName: github-ssh-credentials
