@@ -13,6 +13,7 @@ spec:
         pipelineRef:
           name: homelab
         workspaces:
+          - name: source
           - name: ssh-directory
             secret:
               secretName: github-ssh-credentials
