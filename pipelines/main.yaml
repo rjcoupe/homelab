@@ -13,6 +13,8 @@ spec:
     - name: fetch-source
       taskRef:
         name: git-clone
+      params:
+        url: github.com/rjcoupe/homelab
       workspaces:
         - name: ssh-directory
           workspace: ssh-directory
