@@ -1,0 +1,17 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: homelab-run-on-pr
+  namespace: tekton-pipelines
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: homelab-run-on-pr-
+      spec:
+        pipelineRef: homelab
+        workspaces:
+          - name: ssh_credentials
+            secret:
+              secretName: github-ssh-credentials

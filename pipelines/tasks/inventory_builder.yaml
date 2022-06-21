@@ -1,7 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: inventory_builder
+  name: inventory-builder
+  namespace: tekton-pipelines
 spec:
   workspaces:
     - name: source
@@ -18,19 +19,7 @@ spec:
       type: string
       description: User with which to access the Proxmox API
   steps:
-    - name: fetch_source
-      taskRef:
-        name: git-clone
-      params:
-        - name: url
-          value: github.com/rjcoupe/homelab
-      workspaces:
-        - name: output
-          workspace: source
-        - name: ssh-directory
-          secret:
-            secretName: ssh-credentials
-    - name: build_inventory
+    - name: build-inventory
       image: golang:alpine
       env:
         - name: PROXMOX_API_PASSWORD
@@ -38,13 +27,22 @@ spec:
             secretKeyRef:
               name: proxmox
               key: apiPassword
+        - name: PROXMOX_API_HOST
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: host
+        - name: PROXMOX_API_PORT
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: port
+        - name: PROXMOX_API_USER
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: user
       script: |
         #!/bin/sh
         go get github.com/rjcoupe/pm_inventory_builder
-        $GOPATH/bin/pm_inventory_builder -url http://$(params.proxmox_host_ip):$(params.proxmox_host_port) -user $(proxmox_user) > $(workspaces.inventory.path)/dynamic_inventory.yaml
-    - name: combine_inventories
-      image: node:alpine
-      script: |
-        npm install -g @alexlafroscia/yaml-merge
-        statics=$(ls $(workspaces.source.path)/config/inventories.yaml)
-        yaml-merge $(workspaces.inventory.path)/dynamic_inventory.yaml $statics > $(workspaces.inventory.path)/inventory.yaml
+        $GOPATH/bin/pm_inventory_builder -url http://${PROXMOX_API_HOST}:${PROXMOX_API_PORT} -user ${PROXMOX_API_ROOT} > $(workspaces.inventory.path)/dynamic_inventory.yaml

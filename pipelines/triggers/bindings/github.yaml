@@ -1,0 +1,15 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github
+  namespace: tekton-pipelines
+spec:
+  params:
+  - name: gitbranch
+    value: $(extensions.branch_name) # uses CEL interceptor, see EL
+  - name: gitrevision
+    value: $(body.after) # uses body from webhook payload
+  - name: gitrepositoryname
+    value: $(body.repository.name)
+  - name: gitrepositoryurl
+    value: $(body.repository.clone_url)

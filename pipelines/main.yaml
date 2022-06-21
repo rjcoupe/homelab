@@ -2,39 +2,23 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: homelab
+  namespace: tekton-pipelines
 spec:
   workspaces:
+    - name: ssh-credentials
+      description: SSH credentials for git cloning
     - name: source
       description: Source cloned from git repo.
-  params:
-    - name: proxmox_host_ip
-      type: string
-      description: Proxmox Host IP
-    - name: proxmox_host_port
-      type: string
-      description: Proxmox Host API Port (usually 8006)
-      default: 8006
-    - name: proxmox_user
-      type: string
-      description: User with which to access the Proxmox API
-    - name: proxmox_api_token_id
-      type: string
-      description: Proxmox API Token ID
-    - name: proxmox_api_token_secret
-      type: string
-      description: Proxmox API Token Secret
   tasks:
-    - name: fetch_source
+    - name: fetch-source
       taskRef:
         name: git-clone
       workspaces:
         - name: output
           workspace: source
-        - name: ssh-directory
-          secret:
-            secretName: ssh-credentials
     - name: terraform
-      runAfter: fetch_source
+      runAfter: 
+        - fetch-source
       taskRef:
         name: terraform-cli
       workspaces:
@@ -45,29 +29,17 @@ spec:
           value:
             - apply
             - "-auto-approve"
-    - name: build_inventory
+    - name: build-inventory
       runAfter:
         - terraform
       taskRef:
-        name: inventory_builder
-      env:
-        - name: PROXMOX_API_TOKEN_ID
-          value: "$(params.proxmox_api_token_id)"
-        - name: PROXMOX_API_TOKEN_SECRET
-          value: "$(params.proxmox_api_token_secret)"
-      params:
-        - name: proxmox_host_ip
-          value: "$(params.proxmox_host_ip)"
-        - name: proxmox_host_port
-          value: "$(params.proxmox_host_port)"
-    - name: ansible
-      workspaces:
-        - name: source
-          workspace: source
-          readOnly: true
-        - name: inventory
-          workspace: inventory
-          readOnly: true
-      runAfter:
-        - build_inventory
+        name: inventory-builder
+    # - name: ansible
+    #   workspaces:
+    #     - name: source
+    #       workspace: source
+    #     - name: inventory
+    #       workspace: inventory
+    #   runAfter:
+    #     - build_inventory
       
