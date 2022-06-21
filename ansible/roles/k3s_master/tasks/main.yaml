@@ -1,6 +1,6 @@
 ---
 - name: Install K3s on Control Plane
-  shell: curl -sfL https://get.k3s.io | sh -
+  shell: curl -sfL https://get.k3s.io | sh -s - --disable servicelb
 
 - name: Ensure .kube dir exists
   file:
@@ -13,7 +13,7 @@
     src: /etc/rancher/k3s/k3s.yaml
     dest: ~/.kube/config
     state: link
-    mode: 0644
+    mode: 0600
 
 - name: Wait for kube-apiserver to be ready
   wait_for:
@@ -36,5 +36,6 @@
   kubernetes.core.helm:
     name: "{{ item.name }}"
     chart_ref: "{{ item.chart_ref }}"
-    release_namespace: kube-system
+    release_namespace: "{{ item.namespace }}"
+    create_namespace: true
   loop: "{{ preinstall.helm }}"
