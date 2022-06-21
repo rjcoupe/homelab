@@ -21,7 +21,12 @@ spec:
                 secretKey: secretToken
             - name: eventTypes
               value:
-                - pull_request
+                - push
+        - ref:
+            name: cel
+          params:
+            - name: filter
+              value: body.ref === 'refs/heads/main'
 
 ---
 
