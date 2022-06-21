@@ -5,7 +5,7 @@ metadata:
   namespace: tekton-pipelines
 spec:
   workspaces:
-    - name: ssh-credentials
+    - name: ssh-directory
       description: SSH credentials for git cloning
     - name: source
       description: Source cloned from git repo.
@@ -14,6 +14,8 @@ spec:
       taskRef:
         name: git-clone
       workspaces:
+        - name: ssh-directory
+          workspace: ssh-directory
         - name: output
           workspace: source
     - name: terraform
