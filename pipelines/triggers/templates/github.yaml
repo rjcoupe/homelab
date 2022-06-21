@@ -14,7 +14,13 @@ spec:
           name: homelab
         workspaces:
           - name: source
-            emptyDir: {}
+            volumeClaimTemplate:
+              spec:
+                accessModes: 
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 200Mi
           - name: ssh-directory
             secret:
               secretName: github-ssh-credentials

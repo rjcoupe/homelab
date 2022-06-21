@@ -1,0 +1,67 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: terraform
+  namespace: tekton-pipelines
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: init
+      image: alpine:latest
+      env:
+        - name: PM_API_TOKEN_ID
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: tokenId
+        - name: PM_API_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: tokenSecret
+        - name: TF_VAR_pm_host
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: host
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: access_key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: secret_key
+      script: |
+        #!/bin/sh
+        apk add terraform --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
+        cd $(workspaces.source.path)/infra
+        terraform init -upgrade \
+          -backend-config="access_key=$MINIO_ACCESS_KEY" \
+          -backend-config="secret_key=$MINIO_SECRET_KEY"
+    - name: plan
+      image: alpine:latest
+      env:
+        - name: PM_API_TOKEN_ID
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: tokenId
+        - name: PM_API_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: tokenSecret
+        - name: TF_VAR_pm_host
+          valueFrom:
+            secretKeyRef:
+              name: proxmox
+              key: host
+      script: |
+        #!/bin/sh
+        apk add terraform --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
+        cd $(workspaces.source.path)/infra
+        terraform plan    

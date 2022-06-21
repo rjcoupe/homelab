@@ -14,7 +14,8 @@ spec:
       taskRef:
         name: git-clone
       params:
-        url: github.com/rjcoupe/homelab
+        - name: url
+          value: git@github.com:/rjcoupe/homelab.git
       workspaces:
         - name: ssh-directory
           workspace: ssh-directory
@@ -24,15 +25,10 @@ spec:
       runAfter: 
         - fetch-source
       taskRef:
-        name: terraform-cli
+        name: terraform
       workspaces:
         - name: source
           workspace: source
-      params:
-        - name: ARGS
-          value:
-            - apply
-            - "-auto-approve"
     - name: build-inventory
       runAfter:
         - terraform

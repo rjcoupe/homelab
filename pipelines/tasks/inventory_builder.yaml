@@ -8,16 +8,6 @@ spec:
     - name: source
     - name: inventory
       description: Compiled inventory from static data as well as Proxmox
-  params:
-    - name: proxmox_host_ip
-      type: string
-      description: Proxmox Host IP
-    - name: proxmox_host_port
-      type: string
-      description: Proxmox Host API Port (usually 8006)
-    - name: proxmox_user
-      type: string
-      description: User with which to access the Proxmox API
   steps:
     - name: build-inventory
       image: golang:alpine
@@ -45,4 +35,4 @@ spec:
       script: |
         #!/bin/sh
         go get github.com/rjcoupe/pm_inventory_builder
-        $GOPATH/bin/pm_inventory_builder -url http://${PROXMOX_API_HOST}:${PROXMOX_API_PORT} -user ${PROXMOX_API_ROOT} > $(workspaces.inventory.path)/dynamic_inventory.yaml
+        $GOPATH/bin/pm_inventory_builder -url http://${PROXMOX_API_HOST}:${PROXMOX_API_PORT} -user ${PROXMOX_API_ROOT} > $(workspaces.source.path)/ansible/inventories/dynamic.yaml
