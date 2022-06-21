@@ -11,7 +11,7 @@ spec:
         generateName: homelab-run-on-pr-
       spec:
         pipelineRef:
-          ref: homelab
+          name: homelab
         workspaces:
           - name: ssh_credentials
             secret:
