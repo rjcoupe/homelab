@@ -27,10 +27,11 @@ spec:
               key: host
       script: |
         #!/bin/sh
-        go install github.com/rjcoupe/pm_inventory_builder
+        go install github.com/rjcoupe/pm_inventory_builder@latest
         $GOPATH/bin/pm_inventory_builder \
-          -url http://${PM_API_HOST} \
+          -url https://${PM_API_HOST}:8006 \
           -tokenId ${PM_API_TOKEN_ID} \
           -tokenSecret ${PM_API_TOKEN_SECRET} \
+          -allow-insecure-tls \
           > $(workspaces.source.path)/ansible/inventories/dynamic.yaml
         cat $(workspaces.source.path)/ansible/inventories/dynamic.yaml
