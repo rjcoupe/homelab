@@ -6,8 +6,6 @@ metadata:
 spec:
   workspaces:
     - name: source
-    - name: inventory
-      description: Compiled inventory from static data as well as Proxmox
   steps:
     - name: build-inventory
       image: golang:alpine
