@@ -27,7 +27,7 @@ spec:
               key: host
       script: |
         #!/bin/sh
-        go get github.com/rjcoupe/pm_inventory_builder
+        go install github.com/rjcoupe/pm_inventory_builder
         $GOPATH/bin/pm_inventory_builder \
           -url http://${PM_API_HOST} \
           -tokenId ${PM_API_TOKEN_ID} \
