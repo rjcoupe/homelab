@@ -44,6 +44,7 @@ spec:
           -backend-config="access_key=$MINIO_ACCESS_KEY" \
           -backend-config="secret_key=$MINIO_SECRET_KEY"
     - name: plan
+      onError: continue # Until we work out a neater solution for the Proxmox host not always running
       image: alpine:latest
       env:
         - name: PM_API_TOKEN_ID
