@@ -38,6 +38,7 @@ spec:
       script: |
         #!/bin/sh
         apk add terraform --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
+        terraform version
         cd $(workspaces.source.path)/infra
         terraform init -upgrade \
           -backend-config="access_key=$MINIO_ACCESS_KEY" \
