@@ -32,6 +32,9 @@ spec:
     - name: build-inventory
       runAfter:
         - terraform
+      workspaces:
+        - name: source
+          workspace: source
       taskRef:
         name: inventory-builder
     # - name: ansible
